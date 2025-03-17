@@ -81,3 +81,5 @@ The extracted routes will be saved in:
 4. **Outputs JSON and YAML** for easy integration with documentation tools  
 
 This project is licensed under the MIT License.
+
+Copyright 2025, Max Base (Seyyed Ali Mohammadiyeh)
