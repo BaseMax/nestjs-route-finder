@@ -1,6 +1,8 @@
-# NestJS Route Finder
+# 🛤️ NestJS Route Finder
 
-NestJS Route Finder is a Python script that scans a NestJS project to extract route information from controller files. It identifies HTTP methods and paths and outputs them in JSON and YAML formats.
+NestJS Route Finder is a simple Python script that automatically extracts API routes from NestJS controllers and outputs them in JSON and YAML formats.
+
+This tool is useful for documenting, debugging, and generating API references for your NestJS backend.
 
 ## Features
 - Extracts route information from NestJS controllers (`.controller.ts` files)
