@@ -62,7 +62,7 @@ def remove_comments_and_extract_routes(file_path, base_path):
         full_path = f"/{controller_prefix.strip('/')}/{path.strip('/')}"
         full_path = re.sub(r'/+', '/', full_path)
 
-        relative_file_path = file_path.replace(base_path + os.sep, '').replace(base_path, '')
+        relative_file_path = file_path.replace(base_path + os.sep, '').replace(base_path, '').replace("\\", "/")
 
         routes.append({
             'method': method.upper(),
