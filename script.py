@@ -29,14 +29,20 @@ def remove_comments(lines):
     in_multiline_comment = False
 
     for line in lines:
+        if in_multiline_comment:
+            if '*/' in line:
+                in_multiline_comment = False
+                line = line.split('*/', 1)[1]
+            else:
+                continue
+
         if '/*' in line:
             in_multiline_comment = True
-            line = line.split('/*')[0]
-        if '*/' in line:
-            in_multiline_comment = False
-            line = line.split('*/')[-1]
-        
-        if not in_multiline_comment and not line.strip().startswith('//'):
+            line = line.split('/*', 1)[0]
+
+        line = line.split('//', 1)[0]
+
+        if line.strip():
             cleaned_lines.append(line)
 
     return ''.join(cleaned_lines)
