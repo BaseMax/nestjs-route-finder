@@ -2,12 +2,32 @@ import os
 import re
 
 def remove_comments_and_extract_routes(file_path):
+    """Remove comments from the file and extract route information."""
     routes = []
+    
     with open(file_path, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
+        cleaned_code = remove_comments(file.readlines())
 
+    route_pattern = re.compile(
+        r'@(?P<method>Get|Post|Put|Delete|Patch)\s*$?\'?(?P<path>[^\')]*?)\'?$?\s*(?:async\s+)?(?P<function_name>\w+)\s*\('
+    )
+    
+    for match in route_pattern.finditer(cleaned_code):
+        method = match.group('method').lower()
+        path = match.group('path') or match.group('function_name')
+        routes.append({
+            'method': method,
+            'path': path,
+            'file': file_path
+        })
+
+    return routes
+
+def remove_comments(lines):
+    """Remove single-line and multi-line comments from the code."""
     cleaned_lines = []
     in_multiline_comment = False
+
     for line in lines:
         if '/*' in line:
             in_multiline_comment = True
@@ -19,32 +39,12 @@ def remove_comments_and_extract_routes(file_path):
         if not in_multiline_comment and not line.strip().startswith('//'):
             cleaned_lines.append(line)
 
-    cleaned_code = ''.join(cleaned_lines)
-
-    route_pattern = re.compile(
-        r'@(?P<method>Get|Post|Put|Delete|Patch)\s*$?\'?(?P<path>[^\')]*?)\'?$?\s*(?:async\s+)?(?P<function_name>\w+)\s*\('
-    )
-    matches = route_pattern.finditer(cleaned_code)
-
-    for match in matches:
-        method = match.group('method').lower()
-        path = match.group('path') if match.group('path') else ''
-        function_name = match.group('function_name')
-
-        if not path:
-            path = function_name
-
-        full_route = f"{path}"
-        routes.append({
-            'method': method,
-            'path': full_route,
-            'file': file_path
-        })
-
-    return routes
+    return ''.join(cleaned_lines)
 
 def process_directory(directory):
+    """Recursively process the directory to extract routes from TypeScript files."""
     all_routes = []
+    
     for root, dirs, files in os.walk(directory):
         if 'node_modules' in dirs:
             dirs.remove('node_modules')
