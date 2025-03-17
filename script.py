@@ -21,7 +21,9 @@ def remove_comments_and_extract_routes(file_path):
 
     cleaned_code = ''.join(cleaned_lines)
 
-    route_pattern = re.compile(r'@(?P<method>Get|Post|Put|Delete|Patch)\s*$?\'?(?P<path>[^\')]*?)\'?$?\s*([\w\s]*\n)?\s*async\s+(?P<function_name>\w+)\s*\(')
+    route_pattern = re.compile(
+        r'@(?P<method>Get|Post|Put|Delete|Patch)\s*$?\'?(?P<path>[^\')]*?)\'?$?\s*(?:async\s+)?(?P<function_name>\w+)\s*\('
+    )
     matches = route_pattern.finditer(cleaned_code)
 
     for match in matches:
