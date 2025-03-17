@@ -1,5 +1,7 @@
 import os
 import re
+import json
+import yaml
 
 def camel_to_kebab(name):
     """Convert a camelCase or PascalCase string to kebab-case."""
@@ -30,7 +32,7 @@ def remove_comments(lines):
 
     return ''.join(cleaned_lines)
 
-def remove_comments_and_extract_routes(file_path):
+def remove_comments_and_extract_routes(file_path, base_path):
     """Remove comments and extract route info, including controller prefix."""
     routes = []
     
@@ -59,11 +61,13 @@ def remove_comments_and_extract_routes(file_path):
         
         full_path = f"/{controller_prefix.strip('/')}/{path.strip('/')}"
         full_path = re.sub(r'/+', '/', full_path)
-        
+
+        relative_file_path = file_path.replace(base_path + os.sep, '').replace(base_path, '')
+
         routes.append({
-            'method': method,
+            'method': method.upper(),
             'path': full_path,
-            'file': file_path
+            'file': relative_file_path
         })
 
     return routes
@@ -77,18 +81,31 @@ def process_directory(directory):
             dirs.remove('node_modules')
 
         for file in files:
-            # if file.endswith('.ts') or file.endswith('.js'):
             if file.endswith('.controller.ts'):
                 file_path = os.path.join(root, file)
-                routes = remove_comments_and_extract_routes(file_path)
+                routes = remove_comments_and_extract_routes(file_path, directory)
                 all_routes.extend(routes)
 
     return all_routes
 
+def save_output(routes, output_directory):
+    """Save the extracted routes to JSON and YAML files."""
+    json_file = os.path.join(output_directory, "routes.json")
+    yaml_file = os.path.join(output_directory, "routes.yaml")
+
+    with open(json_file, "w", encoding="utf-8") as jf:
+        json.dump(routes, jf, indent=4, ensure_ascii=False)
+
+    with open(yaml_file, "w", encoding="utf-8") as yf:
+        yaml.dump(routes, yf, default_flow_style=False, allow_unicode=True)
+
+    print(f"\n✅ JSON and YAML output saved in: {output_directory}")
+
 if __name__ == "__main__":
-    # project_path = r"C:\Users\MAX\backend-old"
-    project_path = input("Enter the path to the project: ")
+    project_path = input("Enter the path to the project: ").strip()
     routes = process_directory(project_path)
 
     for route in routes:
-        print(f"Method: {route['method'].upper()}, Path: {route['path']}, File: {route['file'].replace(project_path+"\\src\\", "").replace(project_path, "")}")
+        print(f"Method: {route['method']}, Path: {route['path']}, File: {route['file']}") 
+
+    save_output(routes, project_path)
